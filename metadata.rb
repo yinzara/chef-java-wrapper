@@ -4,7 +4,7 @@ maintainer_email 'alexandre@russel.fr'
 license 'Apache 2.0'
 description 'Library cookbook that exposes the java_wrapper LWRP for Installing / Configuring java_wrapper on a server.'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '1.0.1'
+version '1.0.2'
 depends 'ark'
 
 supports 'ubuntu', '= 12.04'

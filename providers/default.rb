@@ -22,33 +22,21 @@ end
 
 action :create do
   create_app_with_wrapper
-
-  # My state has changed so I'd better notify observers
-  new_resource.updated_by_last_action(true)
 end
+
 action :enable do
   deploy_app_with_wrapper
-
-  # My state has changed so I'd better notify observers
-  new_resource.updated_by_last_action(true)
 end
+
 action :start do
   start_app_with_wrapper
-
-  # My state has changed so I'd better notify observers
-  new_resource.updated_by_last_action(true)
 end
+
 action :remove do
   remove_app_with_wrapper
-
-  # My state has changed so I'd better notify observers
-  new_resource.updated_by_last_action(true)
 end
 
-def extract_native_lib
-  # copy the native library to specified folder
-  return unless new_resource.native_library_dest_dir.empty?
-
+def extract_native_lib  
   filename = case new_resource.wrapper_os
              when 'linux'
                'libwrapper.so'
@@ -58,7 +46,7 @@ def extract_native_lib
                'libwrapper.jnilib'
              end
 
-  ark 'java_wrapper' do
+  ser = ark 'java_wrapper' do
     url "http://wrapper.tanukisoftware.com/download/#{new_resource.wrapper_version}/wrapper-#{new_resource.wrapper_os}-"\
       "#{new_resource.wrapper_cpu}-#{new_resource.wrapper_bit}-#{new_resource.wrapper_version}.#{new_resource.wrapper_extension}"
     action :cherry_pick
@@ -66,10 +54,12 @@ def extract_native_lib
     creates "wrapper-#{new_resource.wrapper_os}-#{new_resource.wrapper_cpu}-#{new_resource.wrapper_bit}-"\
       "#{new_resource.wrapper_version}/lib/#{filename}"
   end
+  
+  new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
 end
 
 def create_conf_files
-  template "#{new_resource.conf_dir}/#{new_resource.app_name}.conf" do
+  ser = template "#{new_resource.conf_dir}/#{new_resource.app_name}.conf" do
     source 'wrapper.conf.erb'
     cookbook 'java_wrapper'
     variables(
@@ -90,8 +80,10 @@ def create_conf_files
     owner new_resource.permissions_owner
     group new_resource.permissions_group
   end
+  
+  new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
 
-  template "#{new_resource.bin_dir}/#{new_resource.app_name}" do
+  ser = template "#{new_resource.bin_dir}/#{new_resource.app_name}" do
     source 'sh.script.erb'
     mode 0755
     cookbook 'java_wrapper'
@@ -106,23 +98,29 @@ def create_conf_files
     owner new_resource.permissions_owner
     group new_resource.permissions_group
   end
+  
+  new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
 end
 
 def create_app_with_wrapper
   [new_resource.bin_dir, new_resource.conf_dir, new_resource.lib_dir, new_resource.logs_dir].each do |dir|
-    directory dir do
+    ser = directory dir do
       owner new_resource.permissions_owner
       group new_resource.permissions_group
       mode 0755
       recursive true
       action :create
     end
+    
+    new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
   end
 
-  ark 'java_wrapper' do
+  ser = ark 'java_wrapper' do
     url "http://wrapper.tanukisoftware.com/download/#{new_resource.wrapper_version}/wrapper-#{new_resource.wrapper_os}-"\
       "#{new_resource.wrapper_cpu}-#{new_resource.wrapper_bit}-#{new_resource.wrapper_version}.#{new_resource.wrapper_extension}"
   end
+  
+  new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
 
   create_conf_files
 
@@ -130,26 +128,30 @@ def create_app_with_wrapper
 end
 
 def deploy_app_with_wrapper
-  execute 'install app as service' do
+  ser = execute 'install app as service' do
     cwd new_resource.bin_dir
     user 'root'
     command "#{new_resource.bin_dir}/#{new_resource.app_name} install"
-    creates '/etc/init.d/jetty'
+    creates "/etc/init.d/#{new_resource.app_name}"
   end
+  new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
 end
 
 def remove_app_with_wrapper
-  return unless Dir.exist?(new_resource.bin_dir)
+  return unless Dir.exist?(new_resource.bin_dir) && File.exist?("/etc/init.d/#{new_resource.app_name}")
   execute 'remove app from service' do
     cwd new_resource.bin_dir
     user 'root'
     command "#{new_resource.bin_dir}/#{new_resource.app_name} remove"
   end
+  new_resource.updated_by_last_action(true)
 end
 
 def start_app_with_wrapper
-  service new_resource.app_name do
+  ser = service new_resource.app_name do
     supports restart: true, status: true
     action :start
   end
+  
+  new_resource.updated_by_last_action(true) if ser.updated_by_last_action?
 end
