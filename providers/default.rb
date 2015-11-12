@@ -138,7 +138,7 @@ def deploy_app_with_wrapper
 end
 
 def remove_app_with_wrapper
-  return unless Dir.exist?(new_resource.bin_dir) && File.exist?("/etc/init.d/#{new_resource.app_name}")
+  return unless Dir.exist?(new_resource.bin_dir) && ::File.exist?("/etc/init.d/#{new_resource.app_name}")
   execute 'remove app from service' do
     cwd new_resource.bin_dir
     user 'root'
