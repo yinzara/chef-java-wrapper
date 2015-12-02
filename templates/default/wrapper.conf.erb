@@ -78,20 +78,20 @@ wrapper.console.loglevel=INFO
 wrapper.logfile=<%= @log_file_path %>/<%= @log_file_name %>
 
 # Format of output for the log file.  (See docs for formats)
-wrapper.logfile.format=LPTM
+wrapper.logfile.format=<%=  @log_file_format %>
 
 # Log Level for log file output.  (See docs for log levels)
-wrapper.logfile.loglevel=INFO
+wrapper.logfile.loglevel=<%= @log_file_level %>
 
 # Maximum size that the log file will be allowed to grow to before
 #  the log is rolled. Size is specified in bytes.  The default value
 #  of 0, disables log rolling.  May abbreviate with the 'k' (kb) or
 #  'm' (mb) suffix.  For example: 10m = 10 megabytes.
-wrapper.logfile.maxsize=0
+wrapper.logfile.maxsize=<%= @log_file_maxsize %>
 
 # Maximum number of rolled log files which will be allowed before old
 #  files are deleted.  The default value of 0 implies no limit.
-wrapper.logfile.maxfiles=0
+wrapper.logfile.maxfiles=<%= @log_file_maxfiles %>
 
 # Log Level for sys/event log output.  (See docs for log levels)
 wrapper.syslog.loglevel=NONE

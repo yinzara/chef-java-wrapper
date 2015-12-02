@@ -9,6 +9,10 @@ attribute :lib_dir, kind_of: String
 attribute :conf_dir, kind_of: String
 attribute :logs_dir, kind_of: String
 attribute :log_file_name, kind_of: String
+attribute :log_file_format, kind_of: String, default: 'LPTM'
+attribute :log_file_level, kind_of: String, default: 'INFO'
+attribute :log_file_maxsize, kind_of: String, default: '0'
+attribute :log_file_maxfiles, kind_of: String, default: '0'
 attribute :init_mem_MB, kind_of: String, default: '3'
 attribute :max_mem_MB, kind_of: String, default: '64'
 attribute :java_parameters, kind_of: Array, default: []
